@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mage's Labyrinth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold-primary:  #c9a227;
+      --gold-light:    #e8c84a;
+      --gold-dark:     #8a6b10;
+      --gold-pale:     #f5e8b0;
+      --red-primary:   #8b1a1a;
+      --red-dark:      #5c0e0e;
+      --stone-dark:    #1c1710;
+      --stone-mid:     #2e2820;
+      --stone-light:   #7a7060;
+      --stone-pale:    #e8e0d0;
+      --parchment:     #f4edd8;
+      --text-dark:     #1c1710;
+      --text-mid:      #4a4038;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'EB Garamond', Georgia, serif;
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* ══════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════ */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--stone-dark);
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 2px solid var(--gold-dark);
+    }
+    .nav-hamburger {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; border: none; background: none; padding: 4px 0;
+    }
+    .bars-icon { display: flex; flex-direction: column; gap: 5px; }
+    .bars-icon span { display: block; width: 22px; height: 2px; background: var(--gold-primary); transition: .2s; }
+    .menu-label { font-size: .68rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-primary); font-family: 'Cinzel', serif; }
+
+    .nav-center {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none; color: var(--gold-primary);
+    }
+    .crest-icon {
+      width: 32px; height: 32px;
+      position: relative; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .crest-icon::before {
+      content: '✦';
+      font-size: 1.6rem;
+      color: var(--gold-primary);
+      filter: drop-shadow(0 0 6px rgba(201,162,39,.6));
+    }
+    .brand-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: .82rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--gold-primary);
+      text-shadow: 0 0 20px rgba(201,162,39,.4);
+      white-space: nowrap;
+    }
+
+    .nav-search { background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; }
+    .nav-search svg { width: 18px; height: 18px; stroke: var(--gold-primary); fill: none; stroke-width: 2; stroke-linecap: round; }
+
+    /* ══════════════════════════════════════
+       MOBILE MENU
+    ══════════════════════════════════════ */
+    .mobile-menu {
+      display: none; position: fixed;
+      top: 60px; left: 0; right: 0; bottom: 0;
+      background: var(--stone-dark); z-index: 999;
+      padding: 20px 28px; flex-direction: column;
+      overflow-y: auto;
+      border-top: 1px solid var(--gold-dark);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      padding: 16px 0; border-bottom: 1px solid rgba(201,162,39,.15);
+      font-size: .95rem; font-weight: 600; color: var(--gold-pale);
+      text-decoration: none; letter-spacing: .06em;
+      font-family: 'Cinzel', serif;
+      transition: color .2s;
+    }
+    .mobile-menu a:hover { color: var(--gold-primary); }
+
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    #hero {
+      margin-top: 60px;
+      height: calc(100vh - 60px); min-height: 460px;
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-bg-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 30%;
+      transform: scale(1.06);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 80%, rgba(201,162,39,.18) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(8,6,4,.82) 0%, rgba(14,11,6,.65) 50%, rgba(8,6,4,.88) 100%);
+    }
+    .horizon-line {
+      position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%);
+      width: 75%; max-width: 900px; height: 2px;
+      background: linear-gradient(to right,
+        transparent 0%, rgba(201,162,39,.4) 10%,
+        rgba(232,200,74,.85) 50%,
+        rgba(201,162,39,.4) 90%, transparent 100%);
+      filter: blur(2px);
+      z-index: 1;
+    }
+    .horizon-line::after {
+      content: '';
+      position: absolute; inset: -8px 0px;
+      background: inherit; filter: blur(10px); opacity: .4;
+    }
+    .hero-center {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
+    }
+    .hero-emblem {
+      font-size: 4.5rem; line-height: 1;
+      filter: drop-shadow(0 0 30px rgba(201,162,39,.8)) drop-shadow(0 0 60px rgba(201,162,39,.35));
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { filter: drop-shadow(0 0 30px rgba(201,162,39,.8)) drop-shadow(0 0 60px rgba(201,162,39,.35)); }
+      50%       { filter: drop-shadow(0 0 50px rgba(232,200,74,1)) drop-shadow(0 0 90px rgba(201,162,39,.55)); }
+    }
+    .hero-brandname {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.6rem, 4vw, 2.8rem);
+      font-weight: 900; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold-primary);
+      text-shadow: 0 0 40px rgba(201,162,39,.6), 0 2px 8px rgba(0,0,0,.8);
+    }
+    .hero-subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(.85rem, 1.5vw, 1rem);
+      letter-spacing: .32em; text-transform: uppercase;
+      color: rgba(232,200,74,.55);
+    }
+
+    /* ══════════════════════════════════════
+       STATS BAR
+    ══════════════════════════════════════ */
+    .stats-bar {
+      background: var(--stone-mid);
+      position: relative; overflow: hidden;
+      padding: 52px 0;
+      border-top: 2px solid var(--gold-dark);
+      border-bottom: 2px solid var(--gold-dark);
+    }
+    .stats-bar::after {
+      content: '';
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 180px;
+      background: var(--parchment);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+    .stats-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 64px;
+      display: flex; gap: 56px; align-items: flex-start;
+      position: relative; z-index: 1;
+    }
+
+    .stat-num {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 900; color: var(--gold-primary); line-height: 1;
+      letter-spacing: -.01em; font-variant-numeric: tabular-nums;
+    }
+    .stat-lbl {
+      font-size: .76rem; color: rgba(232,200,74,.5);
+      margin-top: 7px; letter-spacing: .06em;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ══════════════════════════════════════
+       SPLIT SECTIONS
+    ══════════════════════════════════════ */
+    .split {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 360px;
+    }
+    /* Dark panel with right-side diagonal */
+    .panel-blue {
+      background: var(--stone-mid);
+      padding: 68px 60px 68px 64px;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative;
+      clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+    }
+    /* Dark panel with left-side diagonal */
+    .panel-blue-r {
+      background: var(--stone-dark);
+      padding: 68px 64px 68px 56px;
+      display: flex; flex-direction: column; justify-content: center;
+      clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+    }
+    .panel-img {
+      min-height: 300px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .panel-img-fill {
+      width: 100%; height: 100%; min-height: 300px;
+      object-fit: cover;
+    }
+    .panel-img-overlay {
+      position: absolute; inset: 0;
+      pointer-events: none;
+    }
+    .panel-gray { background: #e8e0d0; }
+    .panel-white { background: var(--parchment); }
+
+    /* Eyebrow */
+    .ew { font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; font-weight: 700; margin-bottom: 14px; font-family: 'Cinzel', serif; }
+    .ew-light { color: rgba(201,162,39,.55); }
+    .ew-blue  { color: var(--gold-primary); }
+
+    /* Titles */
+    .t-white { font-family: 'Cinzel', serif; font-size: clamp(1.5rem, 2.5vw, 2.1rem); font-weight: 700; color: var(--gold-pale); line-height: 1.3; margin-bottom: 18px; }
+    .t-dark  { font-family: 'Cinzel', serif; font-size: clamp(1.5rem, 2.5vw, 2.1rem); font-weight: 700; color: var(--text-dark); line-height: 1.3; margin-bottom: 18px; }
+
+    /* Body text */
+    .p-light { color: rgba(244,237,216,.72); font-size: 1rem; line-height: 1.8; max-width: 440px; }
+    .p-dark  { color: var(--text-mid); font-size: 1rem; line-height: 1.8; max-width: 440px; }
+
+    /* CTA link */
+    .cta-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 28px;
+      font-family: 'Cinzel', serif;
+      font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+      text-decoration: none;
+      padding: 10px 22px; border: 1.5px solid;
+      transition: background .2s, color .2s;
+    }
+    .cta-link::after { content: '→'; }
+    .cta-white { color: var(--gold-pale); border-color: rgba(201,162,39,.4); }
+    .cta-white:hover { background: var(--gold-primary); color: var(--stone-dark); border-color: var(--gold-primary); }
+    .cta-blue  { color: var(--gold-primary); border-color: var(--gold-primary); }
+    .cta-blue:hover  { background: var(--gold-primary); color: var(--stone-dark); }
+
+    /* ══════════════════════════════════════
+       NEWS CARDS
+    ══════════════════════════════════════ */
+    .news-section {
+      background: var(--parchment);
+      padding: 72px 64px;
+    }
+    .news-header {
+      max-width: 1200px; margin: 0 auto 36px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .news-title { font-family: 'Cinzel', serif; font-size: 1.7rem; font-weight: 700; color: var(--text-dark); }
+    .cards-row {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: #d4c8a8;
+    }
+    .card {
+      background: white; overflow: hidden;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+    .card-thumb {
+      width: 100%; aspect-ratio: 16/9; overflow: hidden;
+    }
+    .card-thumb-fill {
+      width: 100%; height: 100%;
+    }
+    .card-body { padding: 24px; background: #faf6ee; }
+    .card-tag { font-family: 'Cinzel', serif; font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-dark); font-weight: 700; margin-bottom: 8px; }
+    .card-title { font-family: 'Cinzel', serif; font-size: .92rem; font-weight: 700; line-height: 1.5; color: var(--text-dark); margin-bottom: 10px; }
+    .card-text  { font-size: .9rem; color: #5a5040; line-height: 1.7; }
+    .card-more  { display: inline-block; margin-top: 16px; font-family: 'Cinzel', serif; font-size: .72rem; font-weight: 700; color: var(--gold-dark); text-decoration: none; letter-spacing: .08em; }
+    .card-more:hover { color: var(--gold-primary); text-decoration: underline; }
+
+    /* ══════════════════════════════════════
+       SUSTAINABILITY SPOTLIGHT → LORE SPOTLIGHT
+    ══════════════════════════════════════ */
+    .sustain-section {
+      padding: 80px 64px;
+      display: flex; justify-content: flex-end;
+      position: relative; overflow: hidden;
+    }
+    .sustain-section .sustain-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 25%;
+      filter: grayscale(30%) brightness(.4) sepia(.3);
+    }
+    .sustain-card {
+      background: var(--stone-mid);
+      padding: 52px 48px;
+      max-width: 480px; width: 100%;
+      border: 1px solid var(--gold-dark);
+      position: relative;
+      z-index: 1;
+    }
+    .sustain-card::before {
+      content: '✦';
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      color: var(--gold-primary); font-size: 1.4rem;
+      background: var(--stone-mid); padding: 0 8px;
+    }
+    .sustain-card h2 { font-family: 'Cinzel', serif; font-size: 1.45rem; font-weight: 700; color: var(--gold-pale); margin-bottom: 16px; }
+    .sustain-card p  { color: rgba(244,237,216,.7); font-size: .95rem; line-height: 1.8; margin-bottom: 28px; }
+
+    /* ══════════════════════════════════════
+       INVESTOR SECTION → WHERE TO BUY
+    ══════════════════════════════════════ */
+    .investor-section {
+      background: #f0e8d5;
+      padding: 72px 64px;
+      position: relative; overflow: hidden;
+    }
+    .investor-section .invest-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      opacity: .08;
+      filter: sepia(.5);
+    }
+    .investor-inner { position: relative; z-index: 1; }
+    .investor-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 2fr; gap: 64px; align-items: center;
+    }
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: #d4c8a8;
+    }
+    .kpi { background: white; padding: 28px 20px; text-align: center; }
+    .kpi-val { font-family: 'Cinzel', serif; font-size: 1.7rem; font-weight: 900; color: var(--gold-dark); line-height: 1; }
+    .kpi-lbl { font-family: 'Cinzel', serif; font-size: .68rem; color: #888; margin-top: 7px; letter-spacing: .1em; text-transform: uppercase; }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    footer { background: var(--stone-dark); border-top: 2px solid var(--gold-dark); }
+
+    .footer-top {
+      padding: 56px 64px 44px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      border-bottom: 1px solid rgba(201,162,39,.1);
+    }
+    .footer-tagline {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(.82rem, 1.4vw, 1rem);
+      font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--gold-primary); line-height: 1.5;
+    }
+    .footer-tagline span { color: rgba(201,162,39,.4); }
+    .footer-social { display: flex; gap: 10px; margin-top: 4px; }
+    .s-icon {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(201,162,39,.28);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(201,162,39,.65); font-size: .78rem; font-weight: 900;
+      text-decoration: none; font-style: normal;
+      transition: background .2s, border-color .2s, color .2s;
+    }
+    .s-icon:hover { background: rgba(201,162,39,.12); border-color: rgba(201,162,39,.7); color: var(--gold-primary); }
+
+    .footer-cols {
+      padding: 44px 64px 44px;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 48px;
+      border-bottom: 1px solid rgba(201,162,39,.1);
+    }
+    .fc-label { font-family: 'Cinzel', serif; font-size: .68rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: rgba(201,162,39,.4); margin-bottom: 14px; }
+    .fc-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .fc-list a { font-size: .9rem; color: rgba(244,237,216,.65); text-decoration: none; transition: color .2s; }
+    .fc-list a:hover { color: var(--gold-primary); }
+
+    .footer-bottom {
+      padding: 16px 64px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .f-copy { font-size: .73rem; color: rgba(201,162,39,.3); }
+    .f-legal { display: flex; gap: 20px; list-style: none; flex-wrap: wrap; }
+    .f-legal a { font-size: .73rem; color: rgba(201,162,39,.3); text-decoration: none; transition: color .2s; }
+    .f-legal a:hover { color: rgba(201,162,39,.65); }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 960px) {
+      .split { grid-template-columns: 1fr; }
+      .panel-blue  { clip-path: none; padding: 52px 28px; }
+      .panel-blue-r { clip-path: none; padding: 52px 28px; }
+      .panel-img { min-height: 200px; }
+      .panel-img-fill { min-height: 200px; }
+      .stats-bar::after { display: none; }
+      .stats-inner { flex-wrap: wrap; gap: 32px; padding: 0 28px; }
+      .news-section, .sustain-section, .investor-section { padding: 52px 28px; }
+      .cards-row { grid-template-columns: 1fr; }
+      .sustain-section { justify-content: stretch; }
+      .sustain-card { max-width: 100%; }
+      .investor-inner { grid-template-columns: 1fr; gap: 36px; }
+      .kpi-grid { grid-template-columns: repeat(3,1fr); }
+      .footer-top { flex-direction: column; gap: 28px; padding: 40px 28px 36px; }
+      .footer-cols { grid-template-columns: 1fr; padding: 36px 28px; gap: 28px; }
+      .footer-bottom { padding: 16px 28px; }
+      .f-legal { gap: 12px; }
+    }
+
+    /* ══════════════════════════════════════
+       SCROLL REVEAL
+    ══════════════════════════════════════ */
+    .sr {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .sr.visible { opacity: 1; transform: translateY(0); }
+    .sr-d1 { transition-delay: .1s; }
+    .sr-d2 { transition-delay: .2s; }
+    .sr-d3 { transition-delay: .3s; }
+
+    /* ══════════════════════════════════════
+       DECORATIVE DIVIDERS
+    ══════════════════════════════════════ */
+    .rune-divider {
+      text-align: center; padding: 8px 0;
+      color: var(--gold-dark); font-size: .85rem;
+      letter-spacing: .6em; background: var(--stone-dark);
+      border-top: 1px solid rgba(201,162,39,.12);
+      border-bottom: 1px solid rgba(201,162,39,.12);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header id="siteHeader">
+  <button class="nav-hamburger" id="menuToggle" aria-label="Toggle menu">
+    <div class="bars-icon">
+      <span></span><span></span><span></span>
+    </div>
+    <span class="menu-label">Menu</span>
+  </button>
+
+  <a href="#" class="nav-center">
+    <div class="crest-icon"></div>
+    <span class="brand-name">Mage's Labyrinth</span>
+  </a>
+
+  <button class="nav-search" aria-label="Search">
+    <svg viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.35-4.35"/>
+    </svg>
+  </button>
+</header>
+
+<!-- ══ MOBILE MENU ══ -->
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="#game">The Game</a>
+  <a href="#characters">Characters &amp; Classes</a>
+  <a href="#spells">Spells &amp; Artifacts</a>
+  <a href="#campaign">Campaign Mode</a>
+  <a href="#lore">World &amp; Lore</a>
+  <a href="#news">News</a>
+  <a href="#retailers">Where to Buy</a>
+  <a href="#community">Community</a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <img class="hero-bg-img" src="brand_assets/Gemini_Generated_Image_1bb1za1bb1za1bb1.png" alt="Mage's Labyrinth game spread">
+  <div class="hero-overlay"></div>
+  <div class="horizon-line"></div>
+  <div class="hero-center">
+    <div class="hero-emblem">✦</div>
+    <div class="hero-brandname">Mage's Labyrinth</div>
+    <div class="hero-subtitle">A Game of Magic &amp; Mystery</div>
+  </div>
+</section>
+
+<!-- ══ STATS BAR ══ -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-block">
+      <div class="stat-num" data-target="200">200+</div>
+      <div class="stat-lbl">Unique Cards</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" data-target="6">6</div>
+      <div class="stat-lbl">Playable Classes</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" data-target="48">48</div>
+      <div class="stat-lbl">Dungeon Tiles</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" data-target="2">2–5</div>
+      <div class="stat-lbl">Players</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ THE GAME ══ -->
+<div id="game" class="split">
+  <div class="panel-blue sr">
+    <p class="ew ew-light">The Game</p>
+    <h2 class="t-white">Enter the Labyrinth.<br>Claim the Arcane Throne.</h2>
+    <p class="p-light">Mage's Labyrinth is a competitive dungeon-crawl game where two to five players navigate treacherous corridors, cast powerful spells, and outwit ancient guardians in a race to claim the legendary Arcane Throne.</p>
+    <a href="#" class="cta-link cta-white">Discover More</a>
+  </div>
+  <div class="panel-img panel-gray sr sr-d1">
+    <img class="panel-img-fill" src="brand_assets/Gemini_Generated_Image_1bb1za1bb1za1bb1.png" alt="Mage's Labyrinth game components">
+    <div class="panel-img-overlay" style="background: linear-gradient(135deg, rgba(26,18,8,.35) 0%, rgba(8,6,4,.15) 100%);"></div>
+  </div>
+</div>
+
+<!-- ══ CHARACTERS & CLASSES ══ -->
+<div id="characters" class="split">
+  <div class="panel-img panel-white sr">
+    <img class="panel-img-fill" src="brand_assets/Gemini_Generated_Image_3ystu33ystu33yst.png" alt="Mage's Labyrinth brand guide">
+    <div class="panel-img-overlay" style="background: rgba(26,18,8,.18);"></div>
+  </div>
+  <div class="panel-blue-r sr sr-d1">
+    <p class="ew ew-light">Characters &amp; Classes</p>
+    <h2 class="t-white">Six Paths.<br>One Destiny.</h2>
+    <p class="p-light">Choose your champion from six distinct classes — Archmage, Shadow Rogue, Iron Paladin, Storm Caller, Bone Weaver, or Wild Shaman — each with a unique deck of abilities, a signature spell, and a secret agenda.</p>
+    <a href="#" class="cta-link cta-white">Meet the Classes</a>
+  </div>
+</div>
+
+<!-- ══ SPELLS & ARTIFACTS ══ -->
+<div id="spells" class="split">
+  <div class="panel-blue sr">
+    <p class="ew ew-light">Spells &amp; Artifacts</p>
+    <h2 class="t-white">Power. Cunning.<br>Consequence.</h2>
+    <p class="p-light">Draft from over 200 illustrated cards spanning elemental spells, cursed artifacts, enchanted traps, and forbidden rituals. Every draw reshapes the dungeon — and every choice carries risk.</p>
+    <a href="#" class="cta-link cta-white">Explore the Cards</a>
+  </div>
+  <div class="panel-img panel-gray sr sr-d1">
+    <img class="panel-img-fill" src="brand_assets/Gemini_Generated_Image_3ystu33ystu33yst.png" alt="Mage's Labyrinth brand guide book">
+    <div class="panel-img-overlay" style="background: linear-gradient(135deg, rgba(14,10,4,.55) 0%, rgba(58,40,8,.3) 100%);"></div>
+  </div>
+</div>
+
+<!-- ══ CAMPAIGN MODE ══ -->
+<div id="campaign" class="split">
+  <div class="panel-img panel-white sr">
+    <img class="panel-img-fill" src="brand_assets/Gemini_Generated_Image_1bb1za1bb1za1bb1.png" alt="Mage's Labyrinth game spread" style="object-position: 80% center;">
+    <div class="panel-img-overlay" style="background: rgba(92,14,14,.22);"></div>
+  </div>
+  <div class="panel-blue-r sr sr-d1">
+    <p class="ew ew-light">Campaign Mode</p>
+    <h2 class="t-white">A Living World.<br>Endless Replayability.</h2>
+    <p class="p-light">Chain sessions into an evolving campaign where your choices echo across runs. Unlock permanent upgrades, reveal hidden lore, and watch the Labyrinth itself grow more treacherous as you delve deeper.</p>
+    <a href="#" class="cta-link cta-white">Read the Rules</a>
+  </div>
+</div>
+
+<!-- ══ NEWS ══ -->
+<section id="news" class="news-section">
+  <div class="news-header">
+    <h2 class="news-title sr">Latest News</h2>
+    <a href="#" class="cta-link cta-blue sr sr-d1" style="margin-top:0;">All News</a>
+  </div>
+  <div class="cards-row">
+    <div class="card sr sr-d1">
+      <div class="card-thumb" style="position:relative; overflow:hidden;">
+        <img src="brand_assets/Gemini_Generated_Image_1bb1za1bb1za1bb1.png" alt="Game expansion" style="width:100%;height:100%;object-fit:cover;object-position:center 20%;">
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,18,8,.45) 0%,rgba(138,107,16,.2) 100%);"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Expansion</div>
+        <div class="card-title">The Catacombs of Eternal Night expansion arrives this autumn with 80 new cards</div>
+        <div class="card-text">Brave the deepest chambers yet. The upcoming expansion introduces the Necropolis biome, two new classes, and the fearsome Lich King boss encounter.</div>
+        <a href="#" class="card-more">Read More →</a>
+      </div>
+    </div>
+    <div class="card sr sr-d2">
+      <div class="card-thumb" style="position:relative; overflow:hidden;">
+        <img src="brand_assets/Gemini_Generated_Image_3ystu33ystu33yst.png" alt="Brand guide" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;">
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(58,8,8,.4) 0%,rgba(92,16,16,.2) 100%);"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Tournament</div>
+        <div class="card-title">World Championship 2026 — over 1,400 players compete in Essen for the Golden Staff trophy</div>
+        <div class="card-text">The annual Grand Invitational draws the world's finest mages. Watch live streams, follow standings, and vote for your favourite champion class.</div>
+        <a href="#" class="card-more">Read More →</a>
+      </div>
+    </div>
+    <div class="card sr sr-d3">
+      <div class="card-thumb" style="position:relative; overflow:hidden;">
+        <img src="brand_assets/Gemini_Generated_Image_1bb1za1bb1za1bb1.png" alt="Community" style="width:100%;height:100%;object-fit:cover;object-position:80% center;">
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,21,16,.5) 0%,rgba(58,46,24,.25) 100%);"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Community</div>
+        <div class="card-title">Fan-made Labyrinth Companion app reaches 500,000 downloads on iOS and Android</div>
+        <div class="card-text">The community-built companion tracks card collections, generates random dungeon layouts, and hosts open rule discussions — officially endorsed by Wizardry Games.</div>
+        <a href="#" class="card-more">Read More →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LORE SPOTLIGHT ══ -->
+<section id="lore" class="sustain-section">
+  <img class="sustain-bg" src="brand_assets/Gemini_Generated_Image_3ystu33ystu33yst.png" alt="">
+  <div class="sustain-card sr">
+    <h2>World &amp; Lore</h2>
+    <p>The Labyrinth was not built — it grew. Scholars believe it is a living entity, reshaping its corridors each night to lure new prey. Those who enter seeking power rarely return unchanged, and some never return at all. Only the Arcane Throne knows the truth.</p>
+    <a href="#" class="cta-link cta-white">Explore the Lore</a>
+  </div>
+</section>
+
+<!-- ══ WHERE TO BUY ══ -->
+<section id="retailers" class="investor-section">
+  <img class="invest-bg" src="brand_assets/Gemini_Generated_Image_1bb1za1bb1za1bb1.png" alt="">
+  <div class="investor-inner">
+    <div class="sr">
+      <p class="ew ew-blue">Where to Buy</p>
+      <h2 class="t-dark">Available Worldwide.<br>In Stores &amp; Online.</h2>
+      <p class="p-dark">Mage's Labyrinth is stocked at major game retailers and independent hobby shops across 42 countries. Find your nearest stockist or order direct.</p>
+      <a href="#" class="cta-link cta-blue" style="margin-top: 28px; display: inline-flex;">Find a Retailer</a>
+    </div>
+    <div class="kpi-grid sr sr-d1">
+      <div class="kpi">
+        <div class="kpi-val">42</div>
+        <div class="kpi-lbl">Countries</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">4.8★</div>
+        <div class="kpi-lbl">Avg. Rating</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">60–90</div>
+        <div class="kpi-lbl">Min. Play Time</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-tagline">
+      ENTER THE LABYRINTH <span>IF YOU DARE</span>
+    </div>
+    <div class="footer-social">
+      <a href="#" class="s-icon" aria-label="X / Twitter">𝕏</a>
+      <a href="#" class="s-icon" aria-label="Discord" style="font-style:normal;">◈</a>
+      <a href="#" class="s-icon" aria-label="YouTube">▶</a>
+      <a href="#" class="s-icon" aria-label="Instagram">▣</a>
+    </div>
+  </div>
+
+  <div class="footer-cols">
+    <div>
+      <div class="fc-label">Wizardry Games</div>
+      <ul class="fc-list">
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Our Games</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="fc-label">Mage's Labyrinth</div>
+      <ul class="fc-list">
+        <li><a href="#">Core Set</a></li>
+        <li><a href="#">Expansions</a></li>
+        <li><a href="#">Promo Cards</a></li>
+        <li><a href="#">Rulebook PDF</a></li>
+        <li><a href="#">Print &amp; Play</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="fc-label">Community</div>
+      <ul class="fc-list">
+        <li><a href="#">Forums</a></li>
+        <li><a href="#">Tournament Hub</a></li>
+        <li><a href="#">Press &amp; Media</a></li>
+        <li><a href="#">Fan Art Gallery</a></li>
+        <li><a href="#">Newsletter</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span class="f-copy">© 2026 Wizardry Games. All rights reserved.</span>
+    <ul class="f-legal">
+      <li><a href="#">Imprint</a></li>
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">Terms of Use</a></li>
+      <li><a href="#">Cookie Settings</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+  /* ── Mobile menu ── */
+  const menuToggle  = document.getElementById('menuToggle');
+  const mobileMenu  = document.getElementById('mobileMenu');
+  menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+  /* ── Stats counter animation ── */
+  function runCounter(el) {
+    const target = parseInt(el.dataset.target, 10);
+    if (isNaN(target)) return;
+    const original = el.textContent;
+    const duration = 1800;
+    const start = performance.now();
+    const update = (now) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = Math.floor(eased * target);
+      el.textContent = String(val);
+      if (t < 1) requestAnimationFrame(update);
+      else el.textContent = original;
+    };
+    requestAnimationFrame(update);
+  }
+
+  const statsObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.querySelectorAll('.stat-num[data-target]').forEach(runCounter);
+      statsObs.disconnect();
+    });
+  }, { threshold: 0.4 });
+  statsObs.observe(document.querySelector('.stats-bar'));
+
+  /* ── Scroll reveal ── */
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.sr').forEach(el => revealObs.observe(el));
+</script>
+</body>
+</html>
