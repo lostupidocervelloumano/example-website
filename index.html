@@ -207,17 +207,17 @@
     /* Dark panel with right-side diagonal */
     .panel-blue {
       background: var(--stone-mid);
-      padding: 68px 60px 68px 64px;
+      padding: 68px 96px 68px 64px;
       display: flex; flex-direction: column; justify-content: center;
       position: relative;
-      clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+      clip-path: polygon(0 0, 100% 0, 94% 100%, 0 100%);
     }
     /* Dark panel with left-side diagonal */
     .panel-blue-r {
       background: var(--stone-dark);
-      padding: 68px 64px 68px 56px;
+      padding: 68px 64px 68px 96px;
       display: flex; flex-direction: column; justify-content: center;
-      clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+      clip-path: polygon(6% 0, 100% 0, 100% 100%, 0 100%);
     }
     .panel-img {
       min-height: 300px;
@@ -412,8 +412,8 @@
     ══════════════════════════════════════ */
     @media (max-width: 960px) {
       .split { grid-template-columns: 1fr; }
-      .panel-blue  { clip-path: none; padding: 52px 28px; }
-      .panel-blue-r { clip-path: none; padding: 52px 28px; }
+      .panel-blue  { clip-path: none; padding: 52px 32px; }
+      .panel-blue-r { clip-path: none; padding: 52px 32px; }
       .panel-img { min-height: 200px; }
       .panel-img-fill { min-height: 200px; }
       .stats-bar::after { display: none; }
